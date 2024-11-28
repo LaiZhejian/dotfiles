@@ -107,40 +107,102 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 # custom setting
+function __common_rc_get_shell() {
+  sh=$(ps -o comm= -p $$)
+  echo ${sh#-}
+}
+
+function __common_rc_init_ls() {
+  if command -v eza >/dev/null 2>&1; then
+    alias ls='eza --color=auto'
+    alias ll='eza --color=auto --long --all --color-scale all --extended'
+  elif command -v exa >/dev/null 2>&1; then
+    alias ls='exa --color=auto'
+    alias ll='exa --color=auto --long --all --color-scale --extended'
+  else
+    alias ls='ls --color=auto'
+    alias ll='ls --color=auto -alh'
+  fi
+}
+
+function __common_rc_init_fzf() {
+  local EXT="$(__common_rc_get_shell)"
+  local FZF_PATH
+  if command -v fzf-share >/dev/null 2>&1; then
+    FZF_PATH="$(fzf-share)"
+  elif command -v fzf >/dev/null 2>&1; then
+    if [ -f "/usr/share/fzf/completion.$EXT" ]; then
+      FZF_PATH=/usr/share/fzf
+    elif [ -f "/usr/local/share/fzf/completion.$EXT" ]; then
+      FZF_PATH=/usr/local/share/fzf
+    elif [ -f "/usr/share/doc/fzf/examples/completion.$EXT" ]; then
+      FZF_PATH=/usr/share/doc/fzf/examples
+    else 
+      FZF_PATH="$(dirname $(readlink -f "$(which fzf)"))/../shell"
+    fi
+  fi
+  [ -f "$FZF_PATH/completion.$EXT" ] && source "$FZF_PATH/completion.$EXT"
+  [ -f "$FZF_PATH/key-bindings.$EXT" ] && source "$FZF_PATH/key-bindings.$EXT"
+
+  export FZF_DEFAULT_COMMAND="fd --exclude={.git,.idea,.vscode,.sass-cache,node_modules,build}"
+  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND --type f"
+  export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND --type d"
+  # export FZF_DEFAULT_OPTS="--layout=reverse --preview '(bat -f -n {} || cat {}) 2> /dev/null | head -500'"
+}
+
+function __common_rc_init_tldr() {
+  if command -v tldr >/dev/null 2>&1; then
+    export TLDR_LANGUAGE="en"
+    # export TLDR_PAGES_SOURCE_LOCATION="https://cdn.jsdelivr.net/gh/tldr-pages/tldr/"
+    # export TLDR_DOWNLOAD_CACHE_LOCATION="https://cdn.jsdelivr.net/gh/tldr-pages/tldr-pages.github.io/blob/main/assets/tldr.zip"
+    export TLDR_PAGES_SOURCE_LOCATION="https://mirror.ghproxy.com/https://github.com/tldr-pages/tldr/blob/main/"
+    export TLDR_DOWNLOAD_CACHE_LOCATION="https://mirror.ghproxy.com/https://github.com/tldr-pages/tldr-pages.github.io/blob/main/assets/tldr.zip"
+    export TLDR_CACHE_ENABLED=1
+    export TLDR_CACHE_MAX_AGE=8760
+    export TLDR_AUTO_UPDATE_DISABLED=1
+  fi
+}
+
+__common_rc_init_ls
+__common_rc_init_fzf
+__common_rc_init_tldr
 
 command -v vi >/dev/null 2>&1 && export VISUAL='vi'
 command -v vim >/dev/null 2>&1 && export VISUAL='vim'
 command -v grep >/dev/null 2>&1 && alias grep='grep --color=auto'
-command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init --cmd cd zsh)"
+# command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init --cmd cd zsh)"
 command -v bat >/dev/null 2>&1 && alias cat='bat'
 command -v delta >/dev/null 2>&1 && alias diff='delta'
 command -v tldr >/dev/null 2>&1 && export TLDR_AUTO_UPDATE_DISABLED=1
 
 #proxy list
-alias proxy="export https_proxy=http://127.0.0.1:6152;export http_proxy=http://127.0.0.1:6152;export all_proxy=socks5://127.0.0.1:6153"
-alias unproxy="unset https_proxy http_proxy all_proxy"
+alias myproxy_on="export https_proxy=http://127.0.0.1:6152;export http_proxy=http://127.0.0.1:6152;export all_proxy=http://127.0.0.1:6152;export HTTPS_PROXY=http://127.0.0.1:6152;export HTTP_PROXY=http://127.0.0.1:6152;export ALL_PROXY=http://127.0.0.1:6152"
+alias myproxy_off="unset https_proxy http_proxy all_proxy HTTPS_PROXY HTTP_PROXY ALL_PROXY"
+
+myproxy_on
 
 # download model
 alias download="python /Users/dream/Documents/coding/ConductingExp/util/download_model.py"
 
 # brew
 alias abrew="arch -arm64 /opt/homebrew/bin/brew"
+export HOMEBREW_NO_AUTO_UPDATE=true
+export HOMEBREW_NO_INSTALL_CLEANUP=true
 
-proxy
+# huggingface
+export HF_ENDPOINT=https://hf-mirror.com
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/Users/dream/miniforge3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+__conda_setup="$('/Users/dream/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
-    if [ -f "/Users/dream/miniforge3/etc/profile.d/conda.sh" ]; then
-        . "/Users/dream/miniforge3/etc/profile.d/conda.sh"
+    if [ -f "/Users/dream/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/Users/dream/miniconda3/etc/profile.d/conda.sh"
     else
-        export PATH="/Users/dream/miniforge3/bin:$PATH"
+        export PATH="/Users/dream/miniconda3/bin:$PATH"
     fi
 fi
 unset __conda_setup
 # <<< conda initialize <<<
-
-export HOMEBREW_NO_AUTO_UPDATE=true
