@@ -1,8 +1,18 @@
+# Host github.com
+#     Hostname ssh.github.com
+#     User {{ .chezmoi.config.git.command }}
+#     Port 443
+#     PreferredAuthentications publickey
+#     IdentityFile ~{{ .chezmoi.pathSeparator }}.ssh{{ .chezmoi.pathSeparator }}{{ .encrypt2 }}
+#     ProxyCommand nc -X connect -x 127.0.0.1{{ .chezmoi.pathListSeparator }}6152 %h %p
+#     ServerAliveInterval {{ .chezmoi.gid }}
+
 Host WSL
 	HostName 172.26.81.179
 	User {{ .chezmoi.username }}
 	Port 22
 	RemoteForward 20086 127.0.0.1{{ .chezmoi.pathListSeparator }}6152
+
 
 Host THU-3090-1
 	HostName 10.103.10.151
@@ -10,7 +20,6 @@ Host THU-3090-1
 	Port 8001
 	RemoteForward 20086 127.0.0.1{{ .chezmoi.pathListSeparator }}6152
 	IdentityFile ~{{ .chezmoi.pathSeparator }}.ssh{{ .chezmoi.pathSeparator }}{{ .encrypt2 }}
-
 
 Host THU-3090-2
 	HostName 10.103.10.151
@@ -147,7 +156,7 @@ Host V100-32
 
 Host V100-33
 	HostName 210.28.133.13
-	Port 20647
+	Port 22170
 	User {{ .name2 }}
 	RemoteForward 20086 127.0.0.1{{ .chezmoi.pathListSeparator }}6152
 	IdentityFile ~{{ .chezmoi.pathSeparator }}.ssh{{ .chezmoi.pathSeparator }}{{ .encrypt2 }}
@@ -170,7 +179,6 @@ Host 2080Ti-1
 	HostName  210.28.132.174
 	User {{ .name2 }}
 	RemoteForward 20086 127.0.0.1{{ .chezmoi.pathListSeparator }}6152
-	RemoteForward 20086 127.0.0.1{{ .chezmoi.pathListSeparator }}6152
 	IdentityFile ~{{ .chezmoi.pathSeparator }}.ssh{{ .chezmoi.pathSeparator }}{{ .encrypt2 }}
 
 Host 2080Ti-2
@@ -184,4 +192,3 @@ Host Titan-1
 	User {{ .name2 }}
 	RemoteForward 20086 127.0.0.1{{ .chezmoi.pathListSeparator }}6152
 	IdentityFile ~{{ .chezmoi.pathSeparator }}.ssh{{ .chezmoi.pathSeparator }}{{ .encrypt2 }}
-
